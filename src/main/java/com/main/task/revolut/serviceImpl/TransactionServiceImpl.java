@@ -39,6 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
 			Account sourceAccountDetails = getAccountDetails(transactionDetailsDTO.getSourceAccountId());
 			Account targetAccountDetails = getAccountDetails(transactionDetailsDTO.getTargetAccountId());
 			transferMoney(sourceAccountDetails, targetAccountDetails, transactionDetailsDTO.getAmount());
+			LOGGER.info("Transaction succesfull.");
 		} catch (ValidationException e) {
 			LOGGER.error("Account Validation failure :: ", e);
 			throw new TransferException("Account Validation failure :: " + e.getMessage(), Response.Status.BAD_REQUEST);
@@ -63,6 +64,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 		} catch (RuntimeException | SQLException e) {
 			rollback(conn);
+			LOGGER.error("Transaction failed..", e);
 			throw new TransferException("Transaction Failed. Please try again!", Response.Status.INTERNAL_SERVER_ERROR);
 		} finally {
 			closeConnection(conn);
@@ -82,6 +84,7 @@ public class TransactionServiceImpl implements TransactionService {
 			preparedStatementInsertToTransaction.executeUpdate();
 			LOGGER.info("Entry made into transaction table.");
 		} catch (SQLException e) {
+			LOGGER.error("Transaction failed..", e);
 			throw new TransferException("Transaction Failed. Please try again!", Response.Status.INTERNAL_SERVER_ERROR);
 		} finally {
 			closePreparedStatement(preparedStatementInsertToTransaction);
@@ -98,10 +101,12 @@ public class TransactionServiceImpl implements TransactionService {
 			preparedStatementUpdatesourceAccount.setBigDecimal(3, transactionAmount);
 
 			if (preparedStatementUpdatesourceAccount.executeUpdate() != 1) {
+				LOGGER.error("Transaction failed..");
 				throw new TransferException("Transaction Failed. Please try again!",
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}
 		} catch (SQLException e) {
+			LOGGER.error("Transaction failed..", e);
 			throw new TransferException("Transaction Failed. Please try again!", Response.Status.INTERNAL_SERVER_ERROR);
 		} finally {
 			closePreparedStatement(preparedStatementUpdatesourceAccount);
@@ -118,10 +123,12 @@ public class TransactionServiceImpl implements TransactionService {
 			preparedStatementUpdateTargetAccount.setString(2, targetAccountDetails.getAccountId());
 
 			if (preparedStatementUpdateTargetAccount.executeUpdate() != 1) {
+				LOGGER.error("Transaction failed..");
 				throw new TransferException("Transaction Failed. Please try again!",
 						Response.Status.INTERNAL_SERVER_ERROR);
 			}
 		} catch (SQLException e) {
+			LOGGER.error("Transaction failed..", e);
 			throw new TransferException("Transaction Failed. Please try again!", Response.Status.INTERNAL_SERVER_ERROR);
 		} finally {
 			closePreparedStatement(preparedStatementUpdateTargetAccount);
@@ -148,6 +155,7 @@ public class TransactionServiceImpl implements TransactionService {
 				throw new ValidationException("Account doesnt exist.", Response.Status.BAD_REQUEST);
 			}
 		} catch (SQLException e) {
+			LOGGER.error("Transaction failed..", e);
 			throw new TransferException("Fetching account details failed ! Try again.",
 					Response.Status.INTERNAL_SERVER_ERROR);
 		} finally {
@@ -178,10 +186,12 @@ public class TransactionServiceImpl implements TransactionService {
 			throws ValidationException, TransferException {
 		if (!ValidationUtil.isValidAccountNumber(targetAccountId)
 				|| !ValidationUtil.isValidAccountNumber(sourceAccountId)) {
+			LOGGER.error("Validation failure :: Account numbers entered for transaction are not valid");
 			throw new ValidationException("Account numbers entered for transaction are not valid",
 					Response.Status.BAD_REQUEST);
 		}
 		if (targetAccountId.equals(sourceAccountId)) {
+			LOGGER.error("Validation failure :: Account numbers of the source and target should be different");
 			throw new ValidationException("Account numbers of the source and target should be different",
 					Response.Status.BAD_REQUEST);
 		}

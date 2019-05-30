@@ -41,6 +41,7 @@ public class AccountServiceImpl implements AccountService {
 			insertIntoAccount(conn, preparedStatement, account);
 
 			conn.commit();
+			LOGGER.info("Account created successfully.");
 		} catch (SQLException e) {
 			LOGGER.error("Account creation failed", e);
 			rollback(conn);
