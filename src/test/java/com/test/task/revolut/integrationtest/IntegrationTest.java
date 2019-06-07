@@ -24,7 +24,7 @@ public class IntegrationTest {
 
 	private static final String Source_Acc = "12345";
 	private static final String Target_Acc = "98765";
-	private static final String url = "http://localhost:8080";
+	private static final String url = "http://localhost:7070";
 
 	private static WebTarget target;
 	private static Client client;
