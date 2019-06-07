@@ -18,7 +18,7 @@ public class App {
 	}
 	
 	public static void startJetty() throws Exception {
-		Server jettyServer = new Server(8080);
+		Server jettyServer = new Server(7070);
         ServletContextHandler httpContext = new ServletContextHandler(jettyServer, "/");
         httpContext.addServlet(new ServletHolder(new ServletContainer(resource())), "/*");
         jettyServer.setHandler(httpContext);
